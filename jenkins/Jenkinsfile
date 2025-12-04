@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Backend npm install') {
+            steps {
+                dir('backend') {
+                    sh '''
+                      if [ -f package-lock.json ]; then
+                        npm ci
+                      else
+                        npm install
+                      fi
+                    '''
+                }
+            }
+        }
+
+        stage('Frontend build') {
+            steps {
+                dir('frontend') {
+                    sh '''
+                      if [ -f package-lock.json ]; then
+                        npm ci
+                      else
+                        npm install
+                      fi
+                      npm run build
+                    '''
+                }
+            }
+        }
+    }
+}
+
