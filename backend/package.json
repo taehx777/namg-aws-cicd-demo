@@ -1,0 +1,16 @@
+{
+  "name": "namg-backend-api",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "start:pm2": "pm2 start src/index.js --name namg-backend-api",
+    "stop:pm2": "pm2 stop namg-backend-api || true",
+    "restart:pm2": "pm2 restart namg-backend-api || pm2 start src/index.js --name namg-backend-api",
+    "test": "echo \"no tests\""
+  },
+  "dependencies": {
+    "express": "^4.19.0"
+  }
+}
+
