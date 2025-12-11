@@ -1,6 +1,13 @@
 pipeline {
     agent any
 
+    environment {
+        AWS_REGION      = 'ap-northeast-2'
+        S3_BUCKET       = 'namg-codedeploy-artifacts-dev'
+        ARTIFACT_PREFIX = 'namg-app'
+        }
+     
+
     stages {
         stage('Checkout') {
             steps {
@@ -36,6 +43,28 @@ pipeline {
                 }
             }
         }
+            stage('Package artifact') {
+            steps {
+                sh '''
+                  rm -f artifact-*.zip || true
+
+                  zip -r artifact-${ARTIFACT_PREFIX}-${BUILD_NUMBER}.zip \
+                    backend \
+                    frontend \
+                    jenkins \
+                    -x "*/node_modules/*" ".git/*"
+                '''
+            }
+        }
+
+        stage('Upload to S3') {
+            steps {
+                sh '''
+                  aws s3 cp artifact-${ARTIFACT_PREFIX}-${BUILD_NUMBER}.zip \
+                    s3://${namg-codedeploy-artifacts-dev}/artifacts/artifact-${ARTIFACT_PREFIX}-${BUILD_NUMBER}.zip \
+                    --region ${AWS_REGION}
+                '''
+            }
     }
 }
 
