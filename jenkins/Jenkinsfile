@@ -3,10 +3,9 @@ pipeline {
 
     environment {
         AWS_REGION      = 'ap-northeast-2'
-        S3_BUCKET       = 'namg-codedeploy-artifacts-dev'
+        S3_BUCKET       = 'namg-codedeploy-artifacts-dev'   // 실제 버킷 이름
         ARTIFACT_PREFIX = 'namg-app'
-        }
-     
+    }
 
     stages {
         stage('Checkout') {
@@ -19,11 +18,11 @@ pipeline {
             steps {
                 dir('backend') {
                     sh '''
-                      if [ -f package-lock.json ]; then
-                        npm ci
-                      else
-                        npm install
-                      fi
+                        if [ -f package-lock.json ]; then
+                          npm ci
+                        else
+                          npm install
+                        fi
                     '''
                 }
             }
@@ -33,26 +32,27 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh '''
-                      if [ -f package-lock.json ]; then
-                        npm ci
-                      else
-                        npm install
-                      fi
-                      npm run build
+                        if [ -f package-lock.json ]; then
+                          npm ci
+                        else
+                          npm install
+                        fi
+                        npm run build
                     '''
                 }
             }
         }
-            stage('Package artifact') {
+
+        stage('Package artifact') {
             steps {
                 sh '''
-                  rm -f artifact-*.zip || true
+                    rm -f artifact-*.zip || true
 
-                  zip -r artifact-${ARTIFACT_PREFIX}-${BUILD_NUMBER}.zip \
-                    backend \
-                    frontend \
-                    jenkins \
-                    -x "*/node_modules/*" ".git/*"
+                    zip -r artifact-${ARTIFACT_PREFIX}-${BUILD_NUMBER}.zip \
+                      backend \
+                      frontend \
+                      jenkins \
+                      -x "*/node_modules/*" ".git/*"
                 '''
             }
         }
@@ -60,11 +60,12 @@ pipeline {
         stage('Upload to S3') {
             steps {
                 sh '''
-                  aws s3 cp artifact-${ARTIFACT_PREFIX}-${BUILD_NUMBER}.zip \
-                    s3://${namg-codedeploy-artifacts-dev}/artifacts/artifact-${ARTIFACT_PREFIX}-${BUILD_NUMBER}.zip \
-                    --region ${AWS_REGION}
+                    aws s3 cp artifact-${ARTIFACT_PREFIX}-${BUILD_NUMBER}.zip \
+                      s3://${S3_BUCKET}/artifacts/artifact-${ARTIFACT_PREFIX}-${BUILD_NUMBER}.zip \
+                      --region ${AWS_REGION}
                 '''
             }
+        }
     }
 }
 
