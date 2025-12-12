@@ -51,8 +51,10 @@ pipeline {
                     zip -r artifact-${ARTIFACT_PREFIX}-${BUILD_NUMBER}.zip \
                       backend \
                       frontend \
-                      jenkins \
-                      -x "*/node_modules/*" ".git/*"
+		      codedeploy-backend \                     
+		      codedeploy-frontend \
+		      jenkins \
+		      -x "*/node_modules/*" ".git/*"
                 '''
             }
         }
